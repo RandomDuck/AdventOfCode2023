@@ -6,75 +6,34 @@ function readData(path) {
   return dataArray;
 }
 
+const thresholds = {r: 12, g: 13, b:14};
+
+function splitGames(data) {
+  function callMap(e) {
+    return [e.split(' ')[2].charAt(0), Number(e.split(' ')[1])];
+  }
+
+  return {
+    game: data.split(':')[0],
+    rounds: data.split(':')[1].split(';').map(e=>e.split(',').map(callMap))
+  }
+}
+
 function task1() {
-  const numAr = [];
-  readData('./day-1/data.csv').forEach(element => {
-    numbers = element.replace(/\D/g, '');
-    switch (numbers.length) {
-      case 2:
-        numAr.push(Number(numbers));
-        break;
-      case 1:
-        numAr.push(Number(numbers+numbers));
-        break;
-      default: 
-        numAr.push(Number(numbers[0]+numbers[numbers.length-1]));
-        break;
-    }
-  });;
-  return {numAr, sum: numAr.reduce((save,current)=>save+current,0)};
+  const parsedData = readData('./day-2/data.csv').map(e=>splitGames(e));
+  const truthArr = parsedData.map(e=>[e.game.split(' ')[1],e.rounds.map(e=>e.map(e=>thresholds[e[0]] >= e[1]).some(e=>e===false)).some(e=>e===true)]);
+  return {
+    possible: truthArr.length - truthArr.reduce((e,x)=>e+(x[1]?1:0),0),
+    possibleSum: truthArr.reduce((e,x)=>e+(!x[1]?Number(x[0]):0),0),
+    impossible: truthArr.reduce((e,x)=>e+(x[1]?1:0),0),
+    impossibleSum: truthArr.reduce((e,x)=>e+(x[1]?Number(x[0]):0),0),
+    total: truthArr.length,
+    arr: truthArr
+  }
 }
 
 function task2() {
-  function replaceNumberWordsWithDigits(text) {
-    function matchOverlap(input, re) {
-      var r = [], m;
-      // Prevent infinite loops
-      if (!re.global) re = new RegExp(
-          re.source, (re+'').split('/').pop() + 'g'
-      );
-      while (m = re.exec(input)) {
-          re.lastIndex -= m[0].length - 1;
-          r.push(m[0]);
-      }
-      return r;
-    }
-
-    const numberWords = {
-        zero: '0',
-        one: '1',
-        two: '2',
-        three: '3',
-        four: '4',
-        five: '5',
-        six: '6',
-        seven: '7',
-        eight: '8',
-        nine: '9'
-    };
-    const pattern = new RegExp(`(${Object.keys(numberWords).join('|')}|\\d)`,'gi');
-    const matchedText = matchOverlap(text, pattern)
-    const replacedText = matchedText.map(e=>e.length>1?numberWords[e.toLowerCase()]:e).join('');
-    return replacedText;
-  }
-
-  const numAr = [];
-  readData('./day-1/data.csv').forEach(element => {
-    numbers = replaceNumberWordsWithDigits(element);
-    switch (numbers.length) {
-      case 2:
-        numAr.push(Number(numbers));
-        break;
-      case 1:
-        numAr.push(Number(numbers+numbers));
-        break;
-      default: 
-        numAr.push(Number(numbers[0]+numbers[numbers.length-1]));
-        break;
-    }
-  });;
-  return {numAr, sum: numAr.reduce((save,current)=>save+current,0)};
 }
 
-console.log(task1().sum);
-console.log(task2().sum);
+console.log(task1());
+console.log(task2());
