@@ -27,12 +27,26 @@ function task1() {
     possibleSum: truthArr.reduce((e,x)=>e+(!x[1]?Number(x[0]):0),0),
     impossible: truthArr.reduce((e,x)=>e+(x[1]?1:0),0),
     impossibleSum: truthArr.reduce((e,x)=>e+(x[1]?Number(x[0]):0),0),
-    total: truthArr.length,
-    arr: truthArr
+    //arr: truthArr,
+    total: truthArr.length
   }
 }
 
 function task2() {
+  const parsedData = readData('./day-2/data.csv').map(e=>splitGames(e));
+  const data = parsedData.map(e => {
+    const rgbmin = {r:0,g:0,b:0}
+    e.rounds.map(e => {
+      e.forEach(e => {
+        rgbmin[e[0]] = rgbmin[e[0]] > e[1] ? rgbmin[e[0]] : e[1];
+      })
+    })
+    return rgbmin
+  });
+  return {
+    //arr: data.map(e=>((e.r<1?1:e.r)*(e.b<1?1:e.b)*(e.g<1?1:e.g))),
+    sum: data.map(e=>((e.r<1?1:e.r)*(e.b<1?1:e.b)*(e.g<1?1:e.g))).reduce((e,x)=>e+x,0)
+  }
 }
 
 console.log(task1());
